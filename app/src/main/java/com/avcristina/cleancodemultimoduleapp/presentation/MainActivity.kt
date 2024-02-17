@@ -6,6 +6,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.avcristina.cleancodemultimoduleapp.R
+import com.avcristina.cleancodemultimoduleapp.data.repository.UserRepositoryImpl
 import com.avcristina.cleancodemultimoduleapp.domain.models.SaveUserNameParam
 import com.avcristina.cleancodemultimoduleapp.domain.models.UserName
 import com.avcristina.cleancodemultimoduleapp.domain.usecase.GetUserNameUseCase
@@ -14,8 +15,16 @@ import com.avcristina.cleancodemultimoduleapp.domain.usecase.SaveUserNameUseCase
 class MainActivity : AppCompatActivity() {
 
     // далее для создания этих объектов будет использоваться DI
-    private val getUserNameUseCase = GetUserNameUseCase()
-    private val saveUserNameUseCase = SaveUserNameUseCase()
+    private val userRepository by lazy(LazyThreadSafetyMode.NONE) {
+        UserRepositoryImpl(context = applicationContext)
+    }
+
+    private val getUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
+        GetUserNameUseCase(userRepository)
+    }
+    private val saveUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
+        SaveUserNameUseCase(userRepository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
