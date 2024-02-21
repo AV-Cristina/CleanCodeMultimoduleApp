@@ -1,29 +1,37 @@
 package com.avcristina.cleancodemultimoduleapp.data.repository
 
-import android.content.Context
+import com.avcristina.cleancodemultimoduleapp.data.storage.UserStorage
+import com.avcristina.cleancodemultimoduleapp.data.storage.models.User
 import com.avcristina.cleancodemultimoduleapp.domain.models.SaveUserNameParam
 import com.avcristina.cleancodemultimoduleapp.domain.models.UserName
 import com.avcristina.cleancodemultimoduleapp.domain.repository.UserRepository
 
-private const val SHARED_PREFS_NAME = "sharedPrefsName"
-private const val KEY_FIRST_NAME = "firstName"
-private const val KEY_LAST_NAME = "lastName"
-private const val DEFAULT_LAST_NAME = "Doe"
-
-class UserRepositoryImpl(context: Context) : UserRepository {
-
-    private val sharedPreferences =
-        context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
+class UserRepositoryImpl(
+    private val userStorage: UserStorage
+    // если в дальнейшем потребуется добавить сохранение данных на сервер,
+    // то в конструктор передадим еще и
+    // private val networkApi: NetworkApi
+) : UserRepository {
 
     override fun saveName(saveParam: SaveUserNameParam): Boolean {
-        sharedPreferences.edit().putString(KEY_FIRST_NAME, saveParam.name).apply()
-        return true
+        val user = mapToStorage(saveParam)
+        return userStorage.save(user)
     }
 
     override fun getName(): UserName {
-        val firstName = sharedPreferences.getString(KEY_FIRST_NAME, "") ?: ""
-        val lastName =
-            sharedPreferences.getString(KEY_LAST_NAME, DEFAULT_LAST_NAME) ?: DEFAULT_LAST_NAME
-        return UserName(firstName = firstName, lastName = lastName)
+        val user = userStorage.get()
+        return mapToDomain(user)
+    }
+
+    // а ниже, если понадобятся, добавим методы, вызывающие методы save и get networkApi
+
+
+    // мапперы можно реализовать так, а можно как extention
+    private fun mapToStorage(saveParam: SaveUserNameParam): User {
+        return User(firstName = saveParam.name, lastName = "")
+    }
+
+    private fun mapToDomain(user: User): UserName {
+        return UserName(firstName = user.firstName, lastName = user.lastName)
     }
 }
