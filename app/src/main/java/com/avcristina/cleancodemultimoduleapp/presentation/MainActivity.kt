@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.avcristina.cleancodemultimoduleapp.R
 import com.avcristina.cleancodemultimoduleapp.data.repository.UserRepositoryImpl
+import com.avcristina.cleancodemultimoduleapp.data.storage.SharedPrefUserStorage
 import com.avcristina.cleancodemultimoduleapp.domain.models.SaveUserNameParam
 import com.avcristina.cleancodemultimoduleapp.domain.models.UserName
 import com.avcristina.cleancodemultimoduleapp.domain.usecase.GetUserNameUseCase
@@ -16,7 +17,7 @@ class MainActivity : AppCompatActivity() {
 
     // далее для создания этих объектов будет использоваться DI
     private val userRepository by lazy(LazyThreadSafetyMode.NONE) {
-        UserRepositoryImpl(context = applicationContext)
+        UserRepositoryImpl(userStorage = SharedPrefUserStorage(context = applicationContext))
     }
 
     private val getUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
