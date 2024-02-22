@@ -6,27 +6,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.avcristina.cleancodemultimoduleapp.R
-import com.avcristina.cleancodemultimoduleapp.data.repository.UserRepositoryImpl
-import com.avcristina.cleancodemultimoduleapp.data.storage.SharedPrefUserStorage
-import com.avcristina.cleancodemultimoduleapp.domain.models.SaveUserNameParam
-import com.avcristina.cleancodemultimoduleapp.domain.models.UserName
-import com.avcristina.cleancodemultimoduleapp.domain.usecase.GetUserNameUseCase
-import com.avcristina.cleancodemultimoduleapp.domain.usecase.SaveUserNameUseCase
 
 class MainActivity : AppCompatActivity() {
-
-    // далее для создания этих объектов будет использоваться DI
-    private val userRepository by lazy(LazyThreadSafetyMode.NONE) {
-        UserRepositoryImpl(userStorage = SharedPrefUserStorage(context = applicationContext))
-    }
-
-    private val getUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
-        GetUserNameUseCase(userRepository)
-    }
-    private val saveUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
-        SaveUserNameUseCase(userRepository)
-    }
 
     private lateinit var vm: MainViewModel
 
@@ -35,25 +19,29 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         Log.e("MyLog", "Activity created")
-        vm = MainViewModel()
+        vm = ViewModelProvider(
+            this, MainViewModelFactory(this)
+        )[MainViewModel::class.java]
 
         val dataTextView = findViewById<TextView>(R.id.dataTextView)
         val dataEditView = findViewById<EditText>(R.id.dataEditText)
         val sendButton = findViewById<Button>(R.id.sendButton)
         val receiveButton = findViewById<Button>(R.id.receiveButton)
 
+        // подписываемся на изменение данных resultLiveData
+        vm.resultLiveData.observe(this, Observer {
+            dataTextView.text = it
+        })
+
         sendButton.setOnClickListener {
             // сохраняем данные (имя пользователя) в какое-то хранилище
             val text = dataEditView.text.toString()
-            val param = SaveUserNameParam(name = text)
-            val result = saveUserNameUseCase.execute(param = param)
-            dataTextView.text = "Save result = $result"
+            vm.save(text)
         }
 
         receiveButton.setOnClickListener {
-            // получаем данные из какого-то хранилища
-            val userName: UserName = getUserNameUseCase.execute()
-            dataTextView.text = "${userName.firstName} ${userName.lastName}"
+            // запрашиваем данные из какого-то хранилища
+            vm.load()
         }
     }
 }
