@@ -1,6 +1,7 @@
 package com.avcristina.cleancodemultimoduleapp.presentation
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -27,9 +28,14 @@ class MainActivity : AppCompatActivity() {
         SaveUserNameUseCase(userRepository)
     }
 
+    private lateinit var vm: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Log.e("MyLog", "Activity created")
+        vm = MainViewModel()
 
         val dataTextView = findViewById<TextView>(R.id.dataTextView)
         val dataEditView = findViewById<EditText>(R.id.dataEditText)
