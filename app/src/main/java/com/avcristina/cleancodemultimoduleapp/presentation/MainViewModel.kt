@@ -8,8 +8,11 @@ import com.avcristina.cleancodemultimoduleapp.domain.models.SaveUserNameParam
 import com.avcristina.cleancodemultimoduleapp.domain.models.UserName
 import com.avcristina.cleancodemultimoduleapp.domain.usecase.GetUserNameUseCase
 import com.avcristina.cleancodemultimoduleapp.domain.usecase.SaveUserNameUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class MainViewModel(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val getUserNameUseCase: GetUserNameUseCase,
     private val saveUserNameUseCase: SaveUserNameUseCase,
 ) : ViewModel() {
@@ -25,10 +28,6 @@ class MainViewModel(
     override fun onCleared() {
         Log.e("MyLog", "ViewModel cleared")
         super.onCleared()
-    }
-
-    fun getResultLiveData(): LiveData<String> {
-        return resultLiveData
     }
 
     fun save(text: String) {
