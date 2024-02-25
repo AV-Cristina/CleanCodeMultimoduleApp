@@ -28,19 +28,19 @@ class MainActivity : AppCompatActivity() {
         val receiveButton = findViewById<Button>(R.id.receiveButton)
 
         // подписываемся на изменение данных resultLiveData
-        vm.resultLiveData.observe(this, Observer {
-            dataTextView.text = it
+        vm.stateLiveData.observe(this, Observer { state ->
+            dataTextView.text = "${state.firstName} ${state.lastName} ${state.saveResult}"
         })
 
         sendButton.setOnClickListener {
             // сохраняем данные (имя пользователя) в какое-то хранилище
             val text = dataEditView.text.toString()
-            vm.save(text)
+            vm.send(SaveEvent(text = text))
         }
 
         receiveButton.setOnClickListener {
             // запрашиваем данные из какого-то хранилища
-            vm.load()
+            vm.send(LoadEvent())
         }
     }
 }

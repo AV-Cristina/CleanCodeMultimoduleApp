@@ -17,11 +17,12 @@ class MainViewModel @Inject constructor(
     private val saveUserNameUseCase: SaveUserNameUseCase,
 ) : ViewModel() {
 
-    private var _resultLiveData = MutableLiveData<String>()
-    val resultLiveData: LiveData<String> = _resultLiveData
+    private var _stateLiveData = MutableLiveData<MainState>()
+    val stateLiveData: LiveData<MainState> = _stateLiveData
 
     init {
         Log.e("MyLog", "ViewModel created")
+        _stateLiveData.value = MainState(saveResult = false, firstName = "", lastName = "")
     }
 
     // вызывается, когда связанная с ViewModel Activity уничтожается
@@ -30,14 +31,34 @@ class MainViewModel @Inject constructor(
         super.onCleared()
     }
 
-    fun save(text: String) {
-        val param = SaveUserNameParam(name = text)
-        val resultData = saveUserNameUseCase.execute(param = param)
-        _resultLiveData.value = "Save result = $resultData"
+    fun send(event: MainEvent) {
+        when (event) {
+            is SaveEvent -> {
+                save(text = event.text)
+            }
+
+            is LoadEvent -> {
+                load()
+            }
+        }
     }
 
-    fun load() {
+    private fun save(text: String) {
+        val param = SaveUserNameParam(name = text)
+        val resultData = saveUserNameUseCase.execute(param = param)
+        _stateLiveData.value = MainState(
+            saveResult = resultData,
+            firstName = stateLiveData.value!!.firstName,
+            lastName = stateLiveData.value!!.lastName
+        )
+    }
+
+    private fun load() {
         val userName: UserName = getUserNameUseCase.execute()
-        _resultLiveData.value = "${userName.firstName} ${userName.lastName}"
+        _stateLiveData.value = MainState(
+            saveResult = stateLiveData.value!!.saveResult,
+            firstName = userName.firstName,
+            lastName = userName.lastName
+        )
     }
 }
