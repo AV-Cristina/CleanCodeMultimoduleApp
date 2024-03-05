@@ -1,6 +1,5 @@
 package com.avcristina.cleancodemultimoduleapp.presentation
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,16 +19,6 @@ class MainViewModel @Inject constructor(
     private var _resultLiveData = MutableLiveData<String>()
     val resultLiveData: LiveData<String> = _resultLiveData
 
-    init {
-        Log.e("MyLog", "ViewModel created")
-    }
-
-    // вызывается, когда связанная с ViewModel Activity уничтожается
-    override fun onCleared() {
-        Log.e("MyLog", "ViewModel cleared")
-        super.onCleared()
-    }
-
     fun save(text: String) {
         val param = SaveUserNameParam(name = text)
         val resultData = saveUserNameUseCase.execute(param = param)
@@ -40,4 +29,14 @@ class MainViewModel @Inject constructor(
         val userName: UserName = getUserNameUseCase.execute()
         _resultLiveData.value = "${userName.firstName} ${userName.lastName}"
     }
+
+//    init {
+//        Log.e("MyLog", "ViewModel created")
+//    }
+//
+//    // вызывается, когда связанная с ViewModel Activity уничтожается
+//    override fun onCleared() {
+//        Log.e("MyLog", "ViewModel cleared")
+//        super.onCleared()
+//    }
 }
