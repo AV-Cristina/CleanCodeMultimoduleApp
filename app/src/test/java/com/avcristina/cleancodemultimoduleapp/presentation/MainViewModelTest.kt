@@ -3,6 +3,7 @@ package com.avcristina.cleancodemultimoduleapp.presentation
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import com.avcristina.cleancodemultimoduleapp.domain.models.SaveUserNameParam
+import com.avcristina.cleancodemultimoduleapp.domain.models.UserName
 import com.avcristina.cleancodemultimoduleapp.domain.usecase.GetUserNameUseCase
 import com.avcristina.cleancodemultimoduleapp.domain.usecase.SaveUserNameUseCase
 import org.junit.After
@@ -53,6 +54,7 @@ class MainViewModeTest {
         ArchTaskExecutor.getInstance().setDelegate(null)
     }
 
+    // TODO: Fix test + use parameters
     @Test
     fun `should save user name and return true`() {
         val saveResult = true
@@ -99,5 +101,19 @@ class MainViewModeTest {
 
     @Test
     fun `should load user name`() {
+        val testUserName = UserName(
+            firstName = "Test first name",
+            lastName = "Test last name"
+        )
+
+        Mockito.`when`(getUserNameUseCase.execute()).thenReturn(testUserName)
+
+        viewModel.load()
+
+        val expected = "${testUserName.firstName} ${testUserName.lastName}"
+        val actual = viewModel.resultLiveData.value
+        assertEquals(expected, actual)
+
+        Mockito.verify(getUserNameUseCase, times(1)).execute()
     }
 }
